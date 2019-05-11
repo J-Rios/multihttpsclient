@@ -32,7 +32,6 @@
     #include "multihttpsclient_hals/generic/multihttpsclient_generic.h"
 #endif
 
-
 /**************************************************************************************************/
 
 #endif
