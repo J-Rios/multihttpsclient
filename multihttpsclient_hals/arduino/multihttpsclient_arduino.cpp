@@ -2,7 +2,7 @@
 // File: multihttpsclient_arduino.cpp
 // Description: Multiplatform HTTPS Client implementation for ESP32 Arduino Framework.
 // Created on: 11 may. 2019
-// Last modified date: 11 may. 2019
+// Last modified date: 30 nov. 2019
 // Version: 0.0.1
 /**************************************************************************************************/
 
@@ -71,26 +71,27 @@ bool MultiHTTPSClient::is_connected(void)
 uint8_t MultiHTTPSClient::get(const char* uri, const char* host, char* response, 
         const size_t response_len, const unsigned long response_timeout)
 {
+    // Lets use response buffer for make the request first (for the sake of save memory)
+    char* request = response;
     unsigned long t0, t1;
-    char request[HTTP_MAX_GET_LENGTH];
 
     // Clear response buffer and create request
     // Note that we use specific header values for Telegram requests
-    memset(response, '\0', response_len);
-    snprintf_P(request, HTTP_MAX_GET_LENGTH, PSTR("GET %s HTTP/1.1\r\nHost: %s\r\n" \
+    snprintf_P(request, response_len, PSTR("GET %s HTTP/1.1\r\nHost: %s\r\n" \
             "User-Agent: MultiHTTPSClient\r\nAccept: text/html,application/xml,application/json" \
             "\r\n\r\n"), uri, host);
 
     // Send request
-    _print(F("HTTP request to send: "));
-    _println(request);
-    _println();
+    //_print(F("HTTP request to send: "));
+    //_println(request);
+    //_println();
     if(write(request) != strlen(request))
     {
         _println(F("[HTTPS] Error: Incomplete HTTP request sent (sent less bytes than expected)."));
         return 1;
     }
     _println(F("[HTTPS] GET request successfully sent."));
+    memset(response, '\0', response_len);
 
     // Wait and read response
     _println(F("[HTTPS] Waiting for response..."));
@@ -136,27 +137,28 @@ uint8_t MultiHTTPSClient::post(const char* uri, const char* host, const char* bo
         const uint64_t body_len, char* response, const size_t response_len, 
         const unsigned long response_timeout)
 {
+    // Lets use response buffer for make the request first (for the sake of save memory)
+    char* request = response;
     unsigned long t0, t1;
-    char request[HTTP_MAX_POST_LENGTH];
 
     // Clear response buffer and create request
     // Note that we use specific header values for Telegram requests
-    memset(response, '\0', response_len);
-    snprintf_P(request, HTTP_MAX_POST_LENGTH, PSTR("POST %s HTTP/1.1\r\nHost: %s\r\n" \
+    snprintf_P(request, response_len, PSTR("POST %s HTTP/1.1\r\nHost: %s\r\n" \
                "User-Agent: ESP32\r\nAccept: text/html,application/xml,application/json" \
                "\r\nContent-Type: application/json\r\nContent-Length: %" PRIu64 "\r\n\r\n%s"), uri, 
                host, body_len, body);
 
     // Send request
-    _print(F("HTTP request to send: "));
-    _println(request);
-    _println();
+    //_print(F("HTTP request to send: "));
+    //_println(request);
+    //_println();
     if(write(request) != strlen(request))
     {
         _println(F("[HTTPS] Error: Incomplete HTTP request sent (sent less bytes than expected)."));
         return 1;
     }
     _println(F("[HTTPS] POST request successfully sent."));
+    memset(response, '\0', response_len);
 
     // Wait and read response
     _println(F("[HTTPS] Waiting for response..."));
@@ -192,7 +194,7 @@ uint8_t MultiHTTPSClient::post(const char* uri, const char* host, const char* bo
         _delay(10);
     }
 
-    //_printf(F("[HTTPS] Response: %s\n\n"), response);
+    //_printf("[HTTPS] Response: %s\n\n", response);
     
     return 0;
 }
@@ -204,7 +206,20 @@ uint8_t MultiHTTPSClient::post(const char* uri, const char* host, const char* bo
 bool MultiHTTPSClient::init(void)
 {
     _client = new WiFiClientSecure();
+
+// Let's do not use Server authenticy verification with Arduino for simplify Makers live
+#ifdef ESP8266
+    // ESP8266 doesn't have a hardware element for SSL/TLS acceleration, so it is really slow
+    // Let's reconfigure software watchdog timer to 8s for avoid server connection issues
+    // Let's ignore server authenticy verification and trust to get a fast response ¯\_(ツ)_/¯
+    ESP.wdtDisable();
+    ESP.wdtEnable(8000U);
+    _client->setInsecure();
+#else
+    // ESP32 has a hardware element for SSL/TLS acceleration, so it could be use
     //_client->setCACert(_cert_https_api_telegram_org);
+    //_client->setFingerprint(_cert_https_api_telegram_org);
+#endif
 
     return true;
 }
