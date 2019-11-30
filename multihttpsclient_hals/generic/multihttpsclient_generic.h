@@ -2,8 +2,8 @@
 // File: multihttpsclient_generic.h
 // Description: Multiplatform HTTPS Client implementation for Generic systems (Windows and Linux).
 // Created on: 11 may. 2019
-// Last modified date: 11 may. 2019
-// Version: 0.0.1
+// Last modified date: 30 nov. 2019
+// Version: 1.0.0
 /**************************************************************************************************/
 
 #if defined(WIN32) || defined(_WIN32) || defined(__linux__)

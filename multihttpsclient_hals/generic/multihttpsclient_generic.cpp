@@ -2,8 +2,8 @@
 // File: multihttpsclient_generic.cpp
 // Description: Multiplatform HTTPS Client implementation for Generic systems (Windows and Linux).
 // Created on: 11 may. 2019
-// Last modified date: 11 may. 2019
-// Version: 0.0.1
+// Last modified date: 30 nov. 2019
+// Version: 1.0.0
 /**************************************************************************************************/
 
 #if defined(WIN32) || defined(_WIN32) || defined(__linux__)
@@ -160,13 +160,13 @@ bool MultiHTTPSClient::is_connected(void)
 uint8_t MultiHTTPSClient::get(const char* uri, const char* host, char* response, 
         const size_t response_len, const unsigned long response_timeout)
 {
+    // Lets use response buffer for make the request first (for the sake of save memory)
+    char* request = response;
     unsigned long t0, t1;
-    char request[HTTP_MAX_GET_LENGTH];
 
     // Clear response buffer and create request
     // Note that we use specific header values for Telegram requests
-    memset(response, '\0', response_len);
-    snprintf_P(request, HTTP_MAX_GET_LENGTH, PSTR("GET %s HTTP/1.1\r\nHost: %s\r\n" \
+    snprintf_P(request, response_len, PSTR("GET %s HTTP/1.1\r\nHost: %s\r\n" \
             "User-Agent: MultiHTTPSClient\r\nAccept: text/html,application/xml,application/json" \
             "\r\n\r\n"), uri, host);
 
@@ -178,6 +178,7 @@ uint8_t MultiHTTPSClient::get(const char* uri, const char* host, char* response,
         return 1;
     }
     _println(F("[HTTPS] GET request successfully sent."));
+    memset(response, '\0', response_len);
 
     // Wait and read response
     _println(F("[HTTPS] Waiting for response..."));
@@ -223,13 +224,13 @@ uint8_t MultiHTTPSClient::post(const char* uri, const char* host, const char* bo
         const uint64_t body_len, char* response, const size_t response_len, 
         const unsigned long response_timeout)
 {
+    // Lets use response buffer for make the request first (for the sake of save memory)
+    char* request = response;
     unsigned long t0, t1;
-    char request[HTTP_MAX_POST_LENGTH];
 
     // Clear response buffer and create request
     // Note that we use specific header values for Telegram requests
-    memset(response, '\0', response_len);
-    snprintf_P(request, HTTP_MAX_POST_LENGTH, PSTR("POST %s HTTP/1.1\r\nHost: %s\r\n" \
+    snprintf_P(request, response_len, PSTR("POST %s HTTP/1.1\r\nHost: %s\r\n" \
                "User-Agent: ESP32\r\nAccept: text/html,application/xml,application/json" \
                "\r\nContent-Type: application/json\r\nContent-Length: %" PRIu64 "\r\n\r\n%s"), uri, 
                host, body_len, body);
@@ -242,6 +243,7 @@ uint8_t MultiHTTPSClient::post(const char* uri, const char* host, const char* bo
         return 1;
     }
     _println(F("[HTTPS] POST request successfully sent."));
+    memset(response, '\0', response_len);
 
     // Wait and read response
     _println(F("[HTTPS] Waiting for response..."));

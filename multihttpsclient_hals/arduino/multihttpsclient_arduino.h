@@ -2,8 +2,8 @@
 // File: multihttpsclient_arduino.h
 // Description: Multiplatform HTTPS Client implementation for ESP32 Arduino Framework.
 // Created on: 11 may. 2019
-// Last modified date: 11 may. 2019
-// Version: 0.0.1
+// Last modified date: 30 nov. 2019
+// Version: 1.0.0
 /**************************************************************************************************/
 
 #if defined(ARDUINO)
