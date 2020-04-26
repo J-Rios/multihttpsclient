@@ -44,18 +44,15 @@
 
 /* Constructor */
 
-// MultiHTTPSClient constructor, initialize and setup secure client with the certificate
-MultiHTTPSClient::MultiHTTPSClient(const uint8_t* ca_pem_start, const uint8_t* ca_pem_end)
+// MultiHTTPSClient constructor, initialize and setup secure client
+MultiHTTPSClient::MultiHTTPSClient(void)
 {
     _debug = false;
     _connected = false;
     _http_header[0] = '\0';
-    _ca_pem_start = ca_pem_start;
-    _ca_pem_end = ca_pem_end;
     _tls = NULL;
     _tls_cfg = NULL;
-
-    init();
+    set_cert(NULL, NULL);
 }
 
 /**************************************************************************************************/
@@ -66,6 +63,19 @@ MultiHTTPSClient::MultiHTTPSClient(const uint8_t* ca_pem_start, const uint8_t* c
 void MultiHTTPSClient::set_debug(const bool debug)
 {
     _debug = debug;
+}
+
+// Setup Server Certificate
+void MultiHTTPSClient::set_cert(const uint8_t* ca_pem_start, const uint8_t* ca_pem_end)
+{
+    static esp_tls_cfg_t tls_cfg;
+
+    tls_cfg.alpn_protos = NULL;
+    tls_cfg.cacert_pem_buf = ca_pem_start;
+    tls_cfg.cacert_pem_bytes = ca_pem_end - ca_pem_start;
+    tls_cfg.non_block = true;
+    _tls_cfg = &tls_cfg;
+    _println(F("[HTTPS] Server Certificate setup."));
 }
 
 // Make HTTPS client connection to server
@@ -224,19 +234,6 @@ uint8_t MultiHTTPSClient::post(const char* uri, const char* host, char* request_
 /**************************************************************************************************/
 
 /* Private Methods */
-
-bool MultiHTTPSClient::init(void)
-{
-    _tls = NULL;
-    static esp_tls_cfg_t tls_cfg;
-    tls_cfg.alpn_protos = NULL;
-    tls_cfg.cacert_pem_buf = _ca_pem_start;
-    tls_cfg.cacert_pem_bytes = _ca_pem_end - _ca_pem_start;
-    tls_cfg.non_block = true;
-    _tls_cfg = &tls_cfg;
-
-    return true;
-}
 
 // Release all mbedtls context
 void MultiHTTPSClient::release_tls_elements(void)
