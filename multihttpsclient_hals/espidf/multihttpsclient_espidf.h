@@ -47,7 +47,7 @@ class MultiHTTPSClient
 {
     public:
         // Public Methods
-        MultiHTTPSClient(const uint8_t* tlg_api_ca_pem_start, const uint8_t* tlg_api_ca_pem_end);
+        MultiHTTPSClient(const uint8_t* ca_pem_start, const uint8_t* ca_pem_end);
         void set_debug(const bool debug);
         int8_t connect(const char* host, uint16_t port);
         void disconnect(void);
@@ -61,8 +61,8 @@ class MultiHTTPSClient
     private:
         // Private Attributtes
         char _http_header[HTTP_HEADER_MAX_LENGTH];
-        const uint8_t* _tlg_api_ca_pem_start;
-        const uint8_t* _tlg_api_ca_pem_end;
+        const uint8_t* _ca_pem_start;
+        const uint8_t* _ca_pem_end;
         struct esp_tls* _tls;
         esp_tls_cfg_t* _tls_cfg;
         bool _connected;

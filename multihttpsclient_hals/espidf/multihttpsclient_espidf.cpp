@@ -45,14 +45,13 @@
 /* Constructor */
 
 // MultiHTTPSClient constructor, initialize and setup secure client with the certificate
-MultiHTTPSClient::MultiHTTPSClient(const uint8_t* tlg_api_ca_pem_start, 
-    const uint8_t* tlg_api_ca_pem_end)
+MultiHTTPSClient::MultiHTTPSClient(const uint8_t* ca_pem_start, const uint8_t* ca_pem_end)
 {
     _debug = false;
     _connected = false;
     _http_header[0] = '\0';
-    _tlg_api_ca_pem_start = tlg_api_ca_pem_start;
-    _tlg_api_ca_pem_end = tlg_api_ca_pem_end;
+    _ca_pem_start = ca_pem_start;
+    _ca_pem_end = ca_pem_end;
     _tls = NULL;
     _tls_cfg = NULL;
 
@@ -231,9 +230,9 @@ bool MultiHTTPSClient::init(void)
     _tls = NULL;
     static esp_tls_cfg_t tls_cfg;
     tls_cfg.alpn_protos = NULL;
-    tls_cfg.cacert_pem_buf = _tlg_api_ca_pem_start,
-    tls_cfg.cacert_pem_bytes = _tlg_api_ca_pem_end - _tlg_api_ca_pem_start,
-    tls_cfg.non_block = true,
+    tls_cfg.cacert_pem_buf = _ca_pem_start;
+    tls_cfg.cacert_pem_bytes = _ca_pem_end - _ca_pem_start;
+    tls_cfg.non_block = true;
     _tls_cfg = &tls_cfg;
 
     return true;
